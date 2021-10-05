@@ -1,22 +1,25 @@
-
 import ContactItem from "./ContactItem/ContactItem";
+import { connect } from "react-redux";
 
-const ContactList = ({ List, onStateChange, onDelete, onGetCurrentIndex }) => {
+const ContactList = ({ List }) => {
+  const contact = List.map(item => {
+    return <ContactItem key={item.Id} {...item} {...item} />;
+  });
 
-    const contact = List.map(item => {
-        return (<ContactItem key={item.Id} {...item}
-            onStateChange={() => onStateChange(item.Id)}
-            onDelete={() => onDelete(item.Id)}
-            onGetCurrentIndex={() => onGetCurrentIndex(item.Id)} />)
-    })
+  return (
+    <section>
+      {contact.length > 0 ? (
+        contact
+      ) : (
+        <p className="emptyList">Contact list is empty!</p>
+      )}
+    </section>
+  );
+};
 
-    return (
+const mapStateToProps = ({ ContactListReducer }) => {
+  const { List } = ContactListReducer;
+  return { List };
+};
 
-        <section>
-            {contact.length > 0 ? contact : <p className="emptyList">Contact list is empty!</p>}
-        </section>
-
-    )
-}
-
-export default ContactList;
+export default connect(mapStateToProps)(ContactList);
