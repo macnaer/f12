@@ -1,7 +1,17 @@
+import { useEffect } from "react";
 import ContactItem from "./ContactItem/ContactItem";
 import { connect } from "react-redux";
+import API from "../../../Services/APIService";
+// Import Actions
+import { GetAllContacts } from "../../../Actions/ContactListActions";
 
-const ContactList = ({ List }) => {
+const ContactList = ({ List, GetAllContacts }) => {
+  useEffect(() => {
+    API.GetContactList().then(data => {
+      GetAllContacts(data);
+    });
+  }, []);
+
   const contact = List.map(item => {
     return <ContactItem key={item.Id} {...item} {...item} />;
   });
@@ -22,4 +32,8 @@ const mapStateToProps = ({ ContactListReducer }) => {
   return { List };
 };
 
-export default connect(mapStateToProps)(ContactList);
+const mapDispatchToProps = {
+  GetAllContacts
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(ContactList);
