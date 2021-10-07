@@ -1,7 +1,13 @@
 import { Component } from "react";
 import { Redirect } from "react-router-dom";
 import { v4 as uuidv4 } from 'uuid';
+import { connect } from "react-redux";
 
+// Import actions
+import {UpdateContactList } from "../../Actions/ContactListActions";
+
+// Import Api service
+import API from "../../Services/APIService";
 
 // Import styles
 import "./AddContact.css";
@@ -65,8 +71,7 @@ class AddContact extends Component {
     onCreateContact = (e) => {
         e.preventDefault();
         const { Name, Phone, Email, Gender, Status, Avatar } = this.state
-
-        const { onAddNewContact } = this.props;
+        const { List, UpdateContactList } = this.props;
         const newContact = {
             Id: uuidv4(),
             Name,
@@ -76,16 +81,20 @@ class AddContact extends Component {
             Status,
             Avatar
         }
+        // const tmpList = [...List];
+        const tmpList = List.slice();
+        tmpList.unshift(newContact);
 
-        onAddNewContact(newContact)
-        this.setState({
-            IsRedirect: true
+        API.UpdateDatabase(tmpList).then(() => {
+            UpdateContactList(tmpList);
+            this.setState({
+                IsRedirect: true
+            })
         })
     }
 
-
-
     render() {
+        console.log("PROPS ",this.props)
         let { Gender, Avatar, IsRedirect } = this.state;
 
         if (IsRedirect === true) {
@@ -150,4 +159,13 @@ class AddContact extends Component {
 
 }
 
-export default AddContact;
+const mapStateToProps = ({ContactListReducer}) => {
+    const { List } = ContactListReducer;
+    return { List };
+}
+
+const mapDispatchToProps = {
+    UpdateContactList
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(AddContact);

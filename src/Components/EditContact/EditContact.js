@@ -1,6 +1,12 @@
 import { Component } from "react";
 import { Redirect } from "react-router-dom";
-import { v4 as uuidv4 } from 'uuid';
+import { connect } from "react-redux";
+
+// Import actions
+import { GetCurrentContact } from "../../Actions/ContactListActions";
+
+// Import services
+import API from "../../Services/APIService";
 
 
 // Import styles
@@ -66,7 +72,7 @@ class EditContact extends Component {
     onEditContact = (e) => {
         e.preventDefault();
         const { Id, Name, Phone, Email, Gender, Status, Avatar } = this.state
-        const { onEditContact } = this.props;
+        const { GetCurrentContact, List } = this.props;
         const editedContact = {
             Id,
             Name,
@@ -76,10 +82,16 @@ class EditContact extends Component {
             Status,
             Avatar
         }
-        onEditContact(editedContact);
 
-        this.setState({
-            IsRedirect: true
+        const index = List.findIndex(elem => elem.Id === Id);
+        let tmpList = List.slice();
+        
+        tmpList[index] = editedContact;
+        API.UpdateDatabase(tmpList).then(() => {
+            GetCurrentContact(editedContact);
+            this.setState({
+                IsRedirect: true
+            })
         })
     }
 
@@ -148,7 +160,15 @@ class EditContact extends Component {
             </div>
         )
     }
-
 }
 
-export default EditContact;
+const mapStateToProps = ({ContactListReducer}) => {
+    const { CurrentContact, List } = ContactListReducer;
+    return { CurrentContact, List };
+}
+
+const mapDispatchToProps = {
+    GetCurrentContact
+}
+
+export default  connect(mapStateToProps,mapDispatchToProps)(EditContact);
